@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "lthOZppRDfaWpAuirEZxm1nNjAOTvHdu/dQpuEfx8OA=",
+  "Source": "TMAWarehouseAPI",
+  "BasePath": "_content/TMAWarehouseAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

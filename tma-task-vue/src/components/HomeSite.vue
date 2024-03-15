@@ -146,9 +146,9 @@ h1 {
     font-size: 6vw;
   }
   .glowing-btn {
-    font-size: 1.5em; /* Dostosowujemy wielkość czcionki na małych urządzeniach */
+    font-size: 1.5em; 
     padding: 0.35em 1em;
-    font-weight: 900; /* Dostosowujemy wypełnienie na małych urządzeniach */
+    font-weight: 900;
   }
 }
 </style>

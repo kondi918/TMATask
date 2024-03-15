@@ -17,6 +17,7 @@
   </div>
   </template>
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -25,8 +26,9 @@ export default {
     };
   },
   methods: {
-    login() {
-      console.log(this.username, this.password);
+    async login() {
+      const response = await axios.get('http://localhost:5171/WeatherForecast');
+      console.log(response);
     }
   }
 };
