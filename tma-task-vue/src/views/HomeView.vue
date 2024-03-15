@@ -26,8 +26,8 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -2; /* Ustawiamy z-index na -1, aby wideo było pod treścią */
-  object-fit: cover; /* Dopasowanie wideo do wymiarów */
+  z-index: -2; 
+  object-fit: cover; 
 }
 .backgroundBlack {
   position: fixed;
@@ -35,8 +35,8 @@ export default {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1; /* Ustawiamy z-index na -1, aby wideo było pod treścią */
-  object-fit: cover; /* Dopasowanie wideo do wymiarów */
+  z-index: -1;
+  object-fit: cover; 
   background-color: rgba(0, 0, 0, 0.822);
 }
 </style>
