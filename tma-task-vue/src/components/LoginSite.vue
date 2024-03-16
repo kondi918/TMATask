@@ -17,6 +17,7 @@
   </div>
   </template>
 <script>
+import User from '@/Data/User';
 import axios from 'axios';
 export default {
   data() {
@@ -26,12 +27,56 @@ export default {
     };
   },
   methods: {
+    RedirectToWarehouse() {
+      this.$router.push({ name: 'warehouse'});
+    },
+    GetAlertString() {
+      var alertString = `Succesfully Added init Users to Database
+        Login Details:
+        1) Employeer
+        Username:employee
+        Password:emp123
+        2) Operator
+        Username:operator
+        Password:op123
+        3) Administrator
+        Username:administrator
+        Password:adm123
+        
+        More details in README file`
+        return alertString;
+    },
     async login() {
-      const response = await axios.get('http://localhost:5171/WeatherForecast');
-      console.log(response);
-    }
+      axios.post('http://localhost:5171/User/PostUser', {
+      username : this.username,
+      password : this.password,
+  })
+    .then( response => {
+      if(response.status == 201)
+      {
+        alert(this.GetAlertString())
+      }
+      else if(response.status == 200) {
+        const userData = response.data
+        let user = new User(userData.username, userData.role);
+        localStorage.setItem('user', JSON.stringify(user));
+        this.RedirectToWarehouse();
+      }
+      else {
+        console.log(response);
+      }
+    })
+    .catch(error => {
+      if(error.response != null){
+        alert(error + "\n" + error.response.data);
+      }
+      else {
+        alert(error + " There might be a problem with connection to API");
+      }
+    });
   }
-};
+
+}};
 </script>
 <style scoped>
 .container {

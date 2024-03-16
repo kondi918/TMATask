@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TMAWarehouseAPI.Data;
+using TMAWarehouseAPI.Exceptions;
 using TMAWarehouseAPI.Models;
+using TMAWarehouseAPI.Models.DTO;
+using TMAWarehouseAPI.Services;
 
 namespace TMAWarehouseAPI.Controllers
 {
@@ -15,14 +18,40 @@ namespace TMAWarehouseAPI.Controllers
         {
             _databaseContext = databaseContext;
         }
-        [HttpGet(Name = "GetUser")]
+ 
+        [HttpPost("PostUser", Name = "PostUser")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-
-        public async Task<ActionResult<List<User>>> GetAllUsers()
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<User>> GetUser([FromBody] UserDTO userDTO)
         {
-            return await _databaseContext.Users.ToListAsync();
+            LoginService loginService = new LoginService(_databaseContext);
+            if (userDTO.Username == "inituserstmawarehouse" && userDTO.Password == "initusershashedpasswords")
+            {
+                if (await loginService.AddUsers())
+                {
+                    return CreatedAtAction(nameof(GetUser), userDTO);
+                }
+                return StatusCode(500, $"Error occured durning adding users to database");
+            }
+            else
+            {
+                try
+                {
+                    User user = await loginService.GetUser(userDTO.Username, userDTO.Password);
+                    return Ok(user);
+                }
+                catch (Exception ex)
+                {
+                    if(ex is UserNotFoundException)
+                    {
+                        return NotFound(ex.Message);
+                    }
+                    return StatusCode(500, $"Error occured durning getting users from database");
+                }
+            }
         }
     }
 }

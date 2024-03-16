@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "cTKhrV3K05mrKu1uVYYqJbdAvIYY6rgGCm4Ti+l8W6CYQPsxyYl7H1itQmk0+q4jma8o9Z/eQml7ZH1ZMZ2yng==",
+  "dgSpecHash": "10R0o4fbPQVm051WO8UUPRQcNID1w0ljxg6e9yjCum3Zbn1pnr2xnIlGFixDF6Mg9IKB70xBUn5VK7Qe/Wr9JA==",
   "success": true,
   "projectFilePath": "E:\\ProjektTMAWarehouse\\TMATask\\TMAWarehouseAPI\\TMAWarehouseAPI\\TMAWarehouseAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Konrad\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Konrad\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
+    "C:\\Users\\Konrad\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Konrad\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.13\\microsoft.aspnetcore.openapi.7.0.13.nupkg.sha512",
     "C:\\Users\\Konrad\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\Konrad\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
