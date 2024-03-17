@@ -28,7 +28,8 @@ export default {
   },
   methods: {
     RedirectToWarehouse() {
-      this.$router.push({ name: 'warehouse'});
+      console.log("dziala");
+      this.$router.push({ name:'warehouse'});
     },
     GetAlertString() {
       var alertString = `Succesfully Added init Users to Database
@@ -36,9 +37,9 @@ export default {
         1) Employeer
         Username:employee
         Password:emp123
-        2) Operator
-        Username:operator
-        Password:op123
+        2) Coordinator
+        Username:coordinator
+        Password:cor123
         3) Administrator
         Username:administrator
         Password:adm123
@@ -57,6 +58,7 @@ export default {
         alert(this.GetAlertString())
       }
       else if(response.status == 200) {
+        console.log(response)
         const userData = response.data
         let user = new User(userData.username, userData.role);
         localStorage.setItem('user', JSON.stringify(user));

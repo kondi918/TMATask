@@ -1,5 +1,5 @@
 <template>    
-<div class="loginSite">
+<div class="loginSite" v-if="myUser">
     <div class="container">
         <div class="headerDiv">
                 <div class="homeNavDiv">
@@ -16,8 +16,11 @@
                     {{ myUser.role }}
                 </div>
         </div>
-        <div class="bodyDiv">
-            <WarehouseItemList></WarehouseItemList>
+        <div class="bodyDiv" v-if="!showAddingPanel">
+            <WarehouseItemList @addObject="handleAddingObject"></WarehouseItemList>
+        </div>
+        <div class="bodyDiv" v-if="showAddingPanel">
+            <AddingItemPanel @returnToList="handleReturnToList"> </AddingItemPanel>
         </div>
     </div>
     <div class="backgroundBlack"> </div>
@@ -26,25 +29,34 @@
   <script>
 import User from '@/Data/User';
 import WarehouseItemList from '@/components/WarehouseItemList.vue';
+import AddingItemPanel from '@/components/AddingItemPanel.vue';
 
 export default {
   props: ['user'],
   components: {
-    WarehouseItemList
+    WarehouseItemList,
+    AddingItemPanel
   },
   data() {
     return {
         myUser: User,
-        name: ''
+        showAddingPanel: false
     }
   },
   created() {
     this.myUser = JSON.parse(localStorage.getItem('user'));
-    if(this.myUser == null) {
+    if(this.myUser == null || this.myUser.role == null) {
         this.$router.push({ name: 'login'});
-
     }
-    this.name = this.myUser.username;
+  },
+  methods: {
+    handleAddingObject() {
+        console.log("test");
+        this.showAddingPanel = true;
+    },
+    handleReturnToList() {
+        this.showAddingPanel = false;
+    }
   }
 }
 </script>

@@ -15,7 +15,16 @@
             <button> Photo </button>
         </div>
         <div class="itemsDiv">
-        <WarehouseSingleItem></WarehouseSingleItem>
+        <WarehouseSingleItem v-for="(number,index) in numbers" 
+        :key="index" 
+        :number="number"
+        :selected="index===selectedIndex" 
+        @click="selectItem(index)"/>
+        </div>
+        <div class="buttonsDiv">
+            <button @click="addItem()"> Add </button>
+            <button> Update </button>
+            <button> Remove </button>
         </div>
     </div>
 </template>
@@ -23,23 +32,34 @@
 <script>
 import WarehouseSingleItem from './WarehouseSingleItem.vue';
 export default {
-
+    data() {
+        return {
+            numbers: [1,2,3,4,5],
+            selectedIndex: null
+        }
+    },
     components: {
         WarehouseSingleItem
     },
     methods: {
+        selectItem(index) {
+            this.selectedIndex = index;
+        },
         sortBy(column) {
             console.log(`Sort by ${column}`);
+        },
+        addItem() {
+            this.$emit('addObject');
         }
     }
 };
 </script>
 <style scoped>
 .container {
-    margin-top: 5%;
+    margin-top: 3%;
     display: flex;
     height: auto;
-    max-height: 70vh;
+    max-height: 80vh;
     width: 90vh;
     align-items: center;
 }
@@ -58,8 +78,13 @@ export default {
     border: solid rgb(105, 105, 105) 4px;
     text-decoration: none;
     text-shadow: 0 0 10px #1201ff; 
-    font-size: larger;
+    font-size: large;
     font-weight: bolder; 
+    overflow: scroll;
+    cursor: pointer;
+}
+.headers > button::-webkit-scrollbar {
+    display: none;
 }
 .searchInput {
     display: flex;
@@ -74,6 +99,7 @@ export default {
 
 .itemsDiv {
     display: flex;
+    flex-direction: column;
     width: 90vw;
     height: 100%;
     overflow-y: auto;
@@ -88,12 +114,32 @@ export default {
 button:hover {
     opacity: 0.5;
 }
+.buttonsDiv{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    height: 10%;
+    padding-top:1%;
+}
+.buttonsDiv > button {
+    height: 100%;
+    width: 100%;
+    color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.11);
+    border: solid rgb(105, 105, 105) 4px;
+    text-decoration: none;
+    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
+    font-size: large;
+    font-weight: bolder; 
+    cursor: pointer;
+}
 @media screen and (max-width: 720px) {
     .headers > button { 
         font-size: 11px;
         font-weight:lighter;
         text-align: center;
-        overflow: scroll;
+        overflow: scroll;   
     }
 }
 </style>
