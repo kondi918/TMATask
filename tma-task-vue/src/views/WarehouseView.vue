@@ -16,11 +16,14 @@
                     {{ myUser.role }}
                 </div>
         </div>
-        <div class="bodyDiv" v-if="!showAddingPanel">
-            <WarehouseItemList @addObject="handleAddingObject"></WarehouseItemList>
+        <div class="bodyDiv" v-if="!showAddingPanel && !showOrderPanel">
+            <WarehouseItemList @addObject="handleAddingObject" @updateItemRequest="handleUpdateRequest" @orderRequest="handleOrderRequest"></WarehouseItemList>
         </div>
         <div class="bodyDiv" v-if="showAddingPanel">
-            <AddingItemPanel @returnToList="handleReturnToList"> </AddingItemPanel>
+            <AddingItemPanel @returnToList="handleReturnToList" :whatPanel="whatPanel" :givenItem="givenItem"> </AddingItemPanel>
+        </div>
+        <div class="bodyDiv" v-if="showOrderPanel">
+            <OrderPanel @returnToList="handleReturnToList" :givenItems="givenItems"> </OrderPanel>
         </div>
     </div>
     <div class="backgroundBlack"> </div>
@@ -30,17 +33,23 @@
 import User from '@/Data/User';
 import WarehouseItemList from '@/components/WarehouseItemList.vue';
 import AddingItemPanel from '@/components/AddingItemPanel.vue';
+import OrderPanel from '@/components/OrderPanel.vue';
 
 export default {
   props: ['user'],
   components: {
     WarehouseItemList,
-    AddingItemPanel
+    AddingItemPanel,
+    OrderPanel
   },
   data() {
     return {
         myUser: User,
-        showAddingPanel: false
+        showAddingPanel: false,
+        showOrderPanel: false,
+        whatPanel: 'adding',
+        givenItem: Object,
+        givenItems: Object
     }
   },
   created() {
@@ -52,9 +61,20 @@ export default {
   methods: {
     handleAddingObject() {
         this.showAddingPanel = true;
+        this.whatPanel = 'adding';
     },
     handleReturnToList() {
         this.showAddingPanel = false;
+        this.showOrderPanel = false;
+    },
+    handleUpdateRequest(item) {
+        this.givenItem = item
+        this.whatPanel = 'updating'
+        this.showAddingPanel = true;
+    },
+    handleOrderRequest(givenItems) {
+        this.givenItems = givenItems
+        this.showOrderPanel = true;
     }
   }
 }

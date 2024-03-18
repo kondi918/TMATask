@@ -1,26 +1,26 @@
 <template>
 <div class="container">
-    <h2>Add Item Form</h2>
+    <h2 v-if="isAdding">Add Item Form</h2>
+    <h2 v-if="!isAdding">Update Item Form</h2>
     <div class="formContainer">
         <form id="addItemForm" @submit.prevent="handleSubmit">
             <label for="itemGroup">Item Group:</label><br>
             <select id="itemGroup" name="itemGroup" required v-model="itemGroup">
             <option value="" selected disabled hidden>Select Group</option>
               <!--Fruits-->
-              <optgroup label="Owoce">
+              <optgroup label="Fruits">
                 <option value="apple">Apples</option>
                 <option value="banana">Bananas</option>
                 <option value="orange">Oranges</option>
                 <option value="pear">Pears</option>
-                <option value="lettuce">Lettuces</option>
               </optgroup>
                 <!--Vegetables-->
-              <optgroup label="Warzywa">
+              <optgroup label="Vegetables">
                 <option value="carrot">Carrots</option>
                 <option value="potato">Potateos</option>
                 <option value="tomato">Tomatoes</option>
                 <option value="cucumber">Cucumbers</option>
-                <option value="sałata">Salads</option>
+                <option value="lettuce">Lettuces</option>
               </optgroup>
             </select>            
         <label for="unitOfMeasurement">Unit Of Measurement:</label>
@@ -41,7 +41,8 @@
         <textarea id="contactPerson" name="contactPerson" v-model="contactPerson"></textarea>
         <label for="photo">Photo:</label>
         <input type="file" id="photo" name="photo" accept="image/*" placeholder="Choose file" @change="checkImageSelected">
-        <button type="submit">Add Item</button>
+        <button v-if=isAdding type="submit">Add Item</button>
+        <button v-if=!isAdding type="submit">Update Item</button>
         <button @click="cancelAdding"> Cancel </button>
         </form>
     </div>
@@ -49,9 +50,14 @@
 </template>
 <script>
 import ItemRequest from '@/Data/ItemRequest';
+import ItemResponse from '@/Data/ItemResponse';
 import axios from 'axios';
 
 export default {
+    props: {
+        givenItem : Object,
+        whatPanel: String
+    },
     data() {
         return {
         itemGroup: '',
@@ -61,7 +67,8 @@ export default {
         status: '',
         storageLocation: '',
         contactPerson: '',
-        photo: ''
+        photo: '',
+        isAdding : true
         };
     },
     methods: {
@@ -95,12 +102,18 @@ export default {
         },
         async handleSubmit(event) {
         event.preventDefault();
+        if(this.isAdding) {
         var itemRequest = new ItemRequest(this.itemGroup,this.unitOfMeasurement,
         this.quantity,this.priceWithoutVat,this.status,this.storageLocation,this.contactPerson,this.photo)
-        await this.sendRequest(itemRequest);
+        await this.sendAddRequest(itemRequest);
+        }
+        else {
+            var itemUpdate = new ItemResponse(this.givenItem.ItemID,this.itemGroup,this.unitOfMeasurement,
+        this.quantity,this.priceWithoutVat,this.status,this.storageLocation,this.contactPerson,this.photo)
+        this.sendUpdateRequest(itemUpdate)
+        }
         },
-        async sendRequest(requestBody) {
-            console.log(requestBody);
+        async sendAddRequest(requestBody) {
             axios.post('http://localhost:5171/Item/PostItem',requestBody)
             .then(response => {
                 if(response)
@@ -113,9 +126,45 @@ export default {
                 }
             })
             .catch(error => {
+                alert("Error: " + error.response.data);
+            });
+        },
+        async sendUpdateRequest(requestBody) {
+            axios.post('http://localhost:5171/Item/UpdateItem',requestBody)
+            .then(response => {
+                if(response)
+                {
+                    alert("Succesfully updated item in database");
+                    this.cancelAdding();
+                }
+                else{
+                    alert("Updating item failed");
+                }
+            })
+            .catch(error => {
                 alert('Error:', error);
             });
+        },
+        setObject() {
+            this.itemGroup = this.givenItem.ItemGroup;
+            this.unitOfMeasurement = this.givenItem.UnitOfMeasurement;
+            this.quantity = this.givenItem.Quantity;
+            this.priceWithoutVat = this.givenItem.PriceWithoutVAT;
+            this.status = this.givenItem.Status;
+            this.storageLocation = this.givenItem.StorageLocation;
+            this.contactPerson = this.givenItem.ContactPerson;
+            this.photo = this.givenItem.Photo;
+            
         }
+  },
+  created() {
+    if(this.whatPanel == "adding") {
+        this.isAdding = true
+    }
+    else {
+        this.isAdding = false;
+        this.setObject()
+    }
   }
 }
 </script>

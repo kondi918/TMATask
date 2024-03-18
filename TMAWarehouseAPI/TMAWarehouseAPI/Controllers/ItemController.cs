@@ -24,7 +24,7 @@ namespace TMAWarehouseAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<ItemResponse>>> GetAllItems()
+        public async Task<ActionResult<List<ItemDTOWithID>>> GetAllItems()
         {
             ItemsService itemsService = new ItemsService(_databaseContext);
             try
@@ -56,7 +56,51 @@ namespace TMAWarehouseAPI.Controllers
                 {
                     return Ok(true);
                 }
-                return Ok(false);
+                return StatusCode(500,false);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpPost("UpdateItem", Name = "UpdateItem")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<bool>> UpdateItem([FromBody] ItemDTOWithID itemDTO)
+        {
+            ItemsService itemsService = new ItemsService(_databaseContext);
+            try
+            {
+                var result = await itemsService.UpdateItem(itemDTO);
+                if (result)
+                {
+                    return Ok(true);
+                }
+                return StatusCode(500, false);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpPost("DeleteItem", Name = "DeleteItem")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<bool>> DeleteItem([FromBody] int id)
+        {
+            ItemsService itemsService = new ItemsService(_databaseContext);
+            try
+            {
+                var result = await itemsService.DeleteItem(id);
+                if (result)
+                {
+                    return Ok(true);
+                }
+                return StatusCode(500, "Couldnt find any item with id:" + id + "in database");
             }
             catch (Exception ex)
             {

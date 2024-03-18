@@ -3,6 +3,7 @@
         <div class="searchInput">
            <input type="text" placeholder="search by name" @input="sortByName(value)" v-model="sortByNameText">
            <input type="text" placeholder="search by location" @input="sortByLocation()" v-model="sortByLocationText">
+           <div class="headerButtonDiv"><button @click="orderRequest"> Order </button> </div>
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
@@ -24,8 +25,8 @@
         </div>
         <div class="buttonsDiv">
             <button @click="addItem()"> Add </button>
-            <button> Update </button>
-            <button> Remove </button>
+            <button @click="updateItem"> Update </button>
+            <button @click="removeItem()"> Remove </button>
         </div>
     </div>
 </template>
@@ -91,15 +92,14 @@ export default {
                     }
                 }
         },
-        sortByName(text) {
-            console.log(text);
+        sortByName() {
             if(this.sortByNameText == '') {
                 this.items = this.originalItemsArray;
                 return;
             }
             let newTable = [];
             this.originalItemsArray.forEach(element => {
-                if(element.ItemGroup.startsWith(this.sortByNameText)) {
+                if(element.ItemGroup.toUpperCase().startsWith(this.sortByNameText.toUpperCase())) {
                     newTable.push(element);
                 }
             });
@@ -112,7 +112,7 @@ export default {
             }
             let newTable = [];
             this.originalItemsArray.forEach(element => {
-                if(element.StorageLocation.startsWith(this.sortByLocationText)) {
+                if(element.StorageLocation.toUpperCase().startsWith(this.sortByLocationText.toUpperCase())) {
                     newTable.push(element);
                 }
             });
@@ -131,7 +131,12 @@ export default {
                     throw new Error("Adding item failed");
                 }
             } catch (error) {
-                alert('Error:' + error);
+                if(error.response && error.response.status == 404) {
+                    alert("Cannot find any item in database");
+                }
+                else {
+                alert('Error' + error);
+                }
             }
         },
         mapToItemResponse(response) {
@@ -152,6 +157,55 @@ export default {
             });
             return items;
         },
+        async removeItem() {
+            if(this.selectedIndex == null) {
+                alert("You have to select item");
+                return;
+            }
+            const id = Number(this.originalItemsArray[Number(this.selectedIndex)].ItemID);
+            axios.post('http://localhost:5171/Item/DeleteItem',id,{headers: {
+                'Content-Type': 'application/json'
+                }
+            }).then(response =>{
+                if(response.status == 200) {
+                    alert("succesfully deleted item from database");
+                    this.originalItemsArray.splice(this.selectedIndex,1);
+                    this.items = this.originalItemsArray;
+                    console.log(this.items);
+                }
+            }).catch(error =>{
+                alert("Error: ",error);
+            })
+            
+        },
+        updateItem() {
+            if(this.selectedIndex == null) {
+                alert("You have to select item");
+                return;
+            }
+            this.$emit('updateItemRequest',this.originalItemsArray[this.selectedIndex]);
+        },
+        prepareItemNames() {
+            const itemArray = []
+            this.originalItemsArray.forEach(element => {
+                const elementType = element.ItemGroup;
+                const elementUnitOfMeasurement = element.UnitOfMeasurement;
+                const quantity = element.Quantity
+                const singleItem = {
+                    ItemGroup : elementType,
+                    UnitOfMeasurement : elementUnitOfMeasurement,
+                    Quantity : quantity
+                }
+                if(!itemArray.includes(singleItem)) {
+                    itemArray.push(singleItem);
+                }
+            });
+            return itemArray
+        },
+        orderRequest() {
+            var itemTypeList = this.prepareItemNames()
+            this.$emit('orderRequest', itemTypeList)
+        }
     },
     created() {
         this.getItemList().then(response => {
@@ -194,6 +248,20 @@ export default {
 }
 .headers > button::-webkit-scrollbar {
     display: none;
+}
+.headerButtonDiv{ 
+    display: flex;
+    justify-content: end;
+    width: 90%;
+}
+.headerButtonDiv > button {
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+    text-decoration: none;
+    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
+    font-size: large;
+    font-weight: bolder; 
+    cursor: pointer;
 }
 .searchInput {
     display: flex;

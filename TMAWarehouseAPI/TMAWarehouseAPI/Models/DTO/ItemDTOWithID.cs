@@ -1,6 +1,6 @@
 ﻿namespace TMAWarehouseAPI.Models.DTO
 {
-    public class ItemResponse
+    public class ItemDTOWithID
     {
         public int ItemID { get; set; }
         public string ItemGroup { get; set; }

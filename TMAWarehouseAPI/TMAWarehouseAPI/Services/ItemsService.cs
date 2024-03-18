@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TMAWarehouseAPI.Data;
+using TMAWarehouseAPI.Exceptions;
 using TMAWarehouseAPI.Models;
 using TMAWarehouseAPI.Models.DTO;
 
@@ -12,12 +13,12 @@ namespace TMAWarehouseAPI.Services
         {
             _dbContext = _context;
         }
-        public async Task<List<ItemResponse>> GetAllItems()
+        public async Task<List<ItemDTOWithID>> GetAllItems()
         {
             try
             {
                 var dbQueries = await _dbContext.Items.ToListAsync();
-                List<ItemResponse> items = new List<ItemResponse>();
+                List<ItemDTOWithID> items = new List<ItemDTOWithID>();
                 foreach(var query in dbQueries)
                 {
                     items.Add(MapToItemResponse(query));
@@ -64,14 +65,14 @@ namespace TMAWarehouseAPI.Services
                 Photo = mPhoto
             };
         }
-        private ItemResponse MapToItemResponse(Item item)
+        private ItemDTOWithID MapToItemResponse(Item item)
         {
             string mPhoto = String.Empty;
             if (item.Photo != null)
             {
                 mPhoto = ConvertToBase64(item.Photo);
             }
-            return new ItemResponse
+            return new ItemDTOWithID
             {
                 ItemID = item.ItemID,
                 ItemGroup = item.ItemGroup,
@@ -88,27 +89,66 @@ namespace TMAWarehouseAPI.Services
         {
             try
             {
+                var existingItem = await _dbContext.Items.FirstOrDefaultAsync(item => item.ItemGroup ==  newItem.ItemGroup && item.UnitOfMeasurement == newItem.UnitOfMeasurement);
+                if(existingItem != null)
+                {
+                    throw new ExistingItemException("That item already exists in database! Consider update or remove");
+                }
                 _dbContext.Items.Add(MapToItem(newItem));
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
             {
+                if(ex is ExistingItemException)
+                {
+                    throw new Exception(ex.Message);
+                }
                 throw new Exception($"An error occurred while adding the item:");
             }
         }
-        // Tu kontynuowac
-        public async Task<bool> UpdateItem(ItemDTO newItem)
+        public async Task<bool> UpdateItem(ItemDTOWithID updatedItem)
         {
             try
             {
-                _dbContext.Items.Add(MapToItem(newItem));
+                var existingItem = await _dbContext.Items.FindAsync(updatedItem.ItemID);
+                if (existingItem == null)
+                {
+                    return false;
+                }
+
+                existingItem.ItemGroup = updatedItem.ItemGroup;
+                existingItem.UnitOfMeasurement = updatedItem.UnitOfMeasurement;
+                existingItem.Quantity = updatedItem.Quantity;
+                existingItem.PriceWithoutVAT = updatedItem.PriceWithoutVAT;
+                existingItem.Status = updatedItem.Status;
+                existingItem.StorageLocation = updatedItem.StorageLocation;
+                existingItem.ContactPerson = updatedItem.ContactPerson;
+                existingItem.Photo = !string.IsNullOrEmpty(updatedItem.Photo) ? ConvertFromBase64(updatedItem.Photo) : null;
                 await _dbContext.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while adding the item:");
+                throw new Exception($"An error occurred while updating the item: {ex.Message}");
+            }
+        }
+        public async Task<bool> DeleteItem(int id)
+        {
+            try
+            {
+                var itemToDelete = await _dbContext.Items.FindAsync(id);
+                if (itemToDelete == null)
+                {
+                    return false;
+                }
+                _dbContext.Items.Remove(itemToDelete);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while deleting the item: {ex.Message}");
             }
         }
 

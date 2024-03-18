@@ -56,9 +56,7 @@ h3 {
     font-size: normal;
     font-weight: lighter;
     color:white;
-    text-align: center;
-    justify-content: center;
-    height: 100%;
+    height: 20%;
 }
 @media screen and (max-width: 720px) {
     h3 { 
