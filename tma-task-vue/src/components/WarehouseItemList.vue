@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="searchInput">
-           <input type="text" placeholder="search by name">
+           <input type="text" placeholder="search by name" @input="sortByName" v-model="sortByNameText">
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
@@ -15,9 +15,9 @@
             <button> Photo </button>
         </div>
         <div class="itemsDiv">
-        <WarehouseSingleItem v-for="(number,index) in numbers" 
-        :key="index" 
-        :number="number"
+        <WarehouseSingleItem v-for="(item,index) in items" 
+        :key="index"
+        :item="item"
         :selected="index===selectedIndex" 
         @click="selectItem(index)"/>
         </div>
@@ -30,12 +30,19 @@
 </template>
 
 <script>
+import ItemResponse from '@/Data/ItemResponse';
 import WarehouseSingleItem from './WarehouseSingleItem.vue';
+import axios from 'axios';
+
 export default {
     data() {
         return {
-            numbers: [1,2,3,4,5],
-            selectedIndex: null
+            selectedIndex: null,
+            items : [],
+            previousColumn : 'ID',
+            direction : 1,
+            originalItemsArray : [],
+            sortByNameText : ''
         }
     },
     components: {
@@ -46,13 +53,103 @@ export default {
             this.selectedIndex = index;
         },
         sortBy(column) {
-            console.log(`Sort by ${column}`);
+            if(this.previousColumn == column) {
+                this.direction *= -1;
+            }
+            this.previousColumn = column;
+            if(this.items != null && this.items.length > 1) {
+                switch (column) {
+                    case 'ID':
+                        this.items.sort((a, b) => (a.ItemID - b.ItemID) * this.direction);
+                        break;
+                    case 'ItemGroup':
+                        this.items.sort((a, b) => ((a.ItemGroup || '').localeCompare(b.ItemGroup || '')) * this.direction);
+                        break;
+                    case 'UnitOfMeasurement':
+                        this.items.sort((a, b) => ((a.UnitOfMeasurement || '').localeCompare(b.UnitOfMeasurement || '')) * this.direction);
+                        break;
+                    case 'Quantity':
+                        this.items.sort((a, b) => ((a.Quantity || 0) - (b.Quantity || 0)) * this.direction);
+                        break;
+                    case 'PriceWithoutVAT':
+                        this.items.sort((a, b) => ((a.PriceWithoutVAT || 0) - (b.PriceWithoutVAT || 0)) * this.direction);
+                        break;
+                    case 'Status':
+                        this.items.sort((a, b) => ((a.Status || '').localeCompare(b.Status || '')) * this.direction);
+                        break;
+                    case 'StorageLocation':
+                        this.items.sort((a, b) => ((a.StorageLocation || '').localeCompare(b.StorageLocation || ''))*this.direction);
+                        break;
+                    case 'ContactPerson':
+                        this.items.sort((a, b) => ((a.ContactPerson || '').localeCompare(b.ContactPerson || '')) * this.direction);
+                        break;
+                    default:
+                        this.items.sort((a, b) => a.ItemID - b.ItemID);
+                        break;
+                    }
+                }
         },
+
+        sortByName() {
+            console.log(this.originalItemsArray);
+            if(this.sortByNameText == '') {
+                this.items = this.originalItemsArray;
+                return;
+            }
+            let newTable = [];
+            this.originalItemsArray.forEach(element => {
+                console.log("element:",element.ItemGroup)
+                if(element.ItemGroup.startsWith(this.sortByNameText)) {
+                    console.log("XD");
+                    newTable.push(element);
+                }
+            });
+           this.items = newTable;      
+        },
+
         addItem() {
             this.$emit('addObject');
+        },
+        async getItemList() {
+            try {
+                const response = await axios.get('http://localhost:5171/Item/GetItems');
+                if (response.data) {
+                    return response.data;
+                } else {
+                    throw new Error("Adding item failed");
+                }
+            } catch (error) {
+                alert('Error:' + error);
+            }
+        },
+        mapToItemResponse(response) {
+            const items = []
+            response.forEach(itemData => {
+                const item = new ItemResponse(
+                itemData.itemID,
+                itemData.itemGroup,
+                itemData.unitOfMeasurement,
+                itemData.quantity,
+                itemData.priceWithoutVAT,
+                itemData.status,
+                itemData.storageLocation,
+                itemData.contactPerson,
+                itemData.photo
+            );
+            items.push(item);
+            });
+            return items;
+        },
+    },
+    created() {
+        this.getItemList().then(response => {
+            this.items = this.mapToItemResponse(response);
+            this.originalItemsArray = this.items;
+            }).catch(error => {
+                console.error("Error", error);
+            });
         }
     }
-};
 </script>
 <style scoped>
 .container {

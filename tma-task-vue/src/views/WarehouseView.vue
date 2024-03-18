@@ -51,7 +51,6 @@ export default {
   },
   methods: {
     handleAddingObject() {
-        console.log("test");
         this.showAddingPanel = true;
     },
     handleReturnToList() {

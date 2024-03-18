@@ -65,6 +65,7 @@ export default {
         };
     },
     methods: {
+        /*
         readFile(file){
             const reader = new FileReader();
             reader.onload = () => {
@@ -73,6 +74,7 @@ export default {
             }
             reader.readAsArrayBuffer(file);
         },
+        */
         checkImageSelected(event) {
         const file = event.target.files[0];
         if (file){
@@ -80,7 +82,11 @@ export default {
                 alert("You have to select image, other filles are not allowed");
                 event.target.value = '';
             }else{
-                this.readFile(event.target.files[0]);
+                const reader = new FileReader();
+                 reader.onload = () => {
+                this.photo = reader.result.split(',')[1]; // convert to base64
+            };
+                reader.readAsDataURL(file);
             }
             }
         },
@@ -94,29 +100,39 @@ export default {
         await this.sendRequest(itemRequest);
         },
         async sendRequest(requestBody) {
-            axios.post('http://localhost:5171/User/PostUser', {
-                requestBody
+            console.log(requestBody);
+            axios.post('http://localhost:5171/Item/PostItem',requestBody)
+            .then(response => {
+                if(response)
+                {
+                    alert("Succesfully added to database");
+                    this.cancelAdding();
+                }
+                else{
+                    alert("Adding item failed");
+                }
             })
+            .catch(error => {
+                alert('Error:', error);
+            });
         }
   }
 }
 </script>
 <style scoped>
-.container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-}
+
 .formContainer {
     display: flex;
-    width: 80%;
+    width: 60%;
     height: 90%;
     justify-content: center;
     align-items: center;
 }
 form {
-    height: 90%;
+    height: 100%;
     width: 100%;
+    padding: 0px;
+    margin: 0px;
 }
 h2 {
     color:white;
@@ -126,21 +142,24 @@ label {
 }
 input {
     width: 100%;
-    height: 3%; 
-    margin: 1%;
-    padding: 1%;
+    height: calc(100%/20);
+    padding: 0px;
+    margin-top: 0.5%;
+    margin-bottom:1%;
 }
 select {
     width: 100%;
-    height: 5%; 
-    margin: 1%;
-    padding: 1%;
+    height: calc(100%/20);
+    padding: 0px;
+    margin-top: 0.5%;
+    margin-bottom:1%;
 }
 textarea {
     width: 100%;
-    height: 5%; 
-    margin: 1%;
-    padding: 1%;
+    height: calc(100%/20);
+    padding: 0px;
+    margin-top: 0.5%;
+    margin-bottom:1%;
 }
 button {
     color: rgb(255, 255, 255);
@@ -151,10 +170,17 @@ button {
     font-size: large;
     font-weight: bolder; 
     cursor: pointer;
-    padding:10px;
-    margin:2%;
+    margin-right: 2%;
 }
 button:hover {
     opacity:0.5;
+}
+@media screen and (max-width: 720px) {
+    .formContainer {
+        width: 80%;
+    }
+    form > * {
+        margin-bottom: 3%;
+    }   
 }
 </style>

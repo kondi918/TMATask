@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
 using TMAWarehouseAPI.Data;
 using TMAWarehouseAPI.Exceptions;
 using TMAWarehouseAPI.Models;
@@ -38,7 +37,7 @@ namespace TMAWarehouseAPI.Services
             else
             {
                 throw new UserNotFoundException("Username incorrect");
-            }                    
+            }                     
         }
 
         // METHOD BELOVE SHOULD BE USED ONLY ONCE TO CREATE INITIAL USERS WITH HASHED PASSWORDS!
@@ -50,9 +49,9 @@ namespace TMAWarehouseAPI.Services
         // You can read more in README file
         private User[] FillUsersInformations()
         {
-            string[] usernames = { "employee", "operator", "administrator" };
-            string[] passwords = { "emp123", "op123", "adm123" };
-            string[] roles = { "EMP", "OP", "ADM" };
+            string[] usernames = { "employee", "coordinator", "administrator" };
+            string[] passwords = { "emp123", "cor123", "adm123" };
+            string[] roles = { "EMP", "CO", "ADM" };
             User[] users = new User[3];
             for(int i =0; i < users.Length; i++)
             {
