@@ -1,7 +1,8 @@
 <template>
     <div class="container">
         <div class="searchInput">
-           <input type="text" placeholder="search by name" @input="sortByName" v-model="sortByNameText">
+           <input type="text" placeholder="search by name" @input="sortByName(value)" v-model="sortByNameText">
+           <input type="text" placeholder="search by location" @input="sortByLocation()" v-model="sortByLocationText">
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
@@ -42,7 +43,8 @@ export default {
             previousColumn : 'ID',
             direction : 1,
             originalItemsArray : [],
-            sortByNameText : ''
+            sortByNameText : '',
+            sortByLocationText: ''
         }
     },
     components: {
@@ -89,18 +91,28 @@ export default {
                     }
                 }
         },
-
-        sortByName() {
-            console.log(this.originalItemsArray);
+        sortByName(text) {
+            console.log(text);
             if(this.sortByNameText == '') {
                 this.items = this.originalItemsArray;
                 return;
             }
             let newTable = [];
             this.originalItemsArray.forEach(element => {
-                console.log("element:",element.ItemGroup)
                 if(element.ItemGroup.startsWith(this.sortByNameText)) {
-                    console.log("XD");
+                    newTable.push(element);
+                }
+            });
+           this.items = newTable;      
+        },
+        sortByLocation() {
+            if(this.sortByLocationText == '') {
+                this.items = this.originalItemsArray;
+                return;
+            }
+            let newTable = [];
+            this.originalItemsArray.forEach(element => {
+                if(element.StorageLocation.startsWith(this.sortByLocationText)) {
                     newTable.push(element);
                 }
             });
@@ -192,6 +204,7 @@ export default {
 }
 .searchInput > input {
     height: 100%;
+    margin-right: 1%;
 }
 
 .itemsDiv {

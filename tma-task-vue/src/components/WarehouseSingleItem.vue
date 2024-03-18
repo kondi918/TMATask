@@ -37,8 +37,7 @@ export default {
 .singleWord {
     display: flex;
     width: calc(100% / 9); 
-    align-items: center;
-    text-align: center;
+    align-items: start;
     justify-content: center;
     height: 100%;
     background-color: rgba(255, 255, 255, 0.11);
@@ -59,6 +58,7 @@ h3 {
     color:white;
     text-align: center;
     justify-content: center;
+    height: 100%;
 }
 @media screen and (max-width: 720px) {
     h3 { 
