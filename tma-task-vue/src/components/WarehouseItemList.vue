@@ -216,11 +216,10 @@ export default {
     align-items: center;
 }
 .headers {
-    width: 90vw;
+    width: 90%;
     height: 10%;
     display: flex;
     border: solid rgb(105, 105, 105) 4px;
-    border-bottom: none;
 }
 .headers > button {
     width: calc(100% / 10); 
@@ -228,11 +227,13 @@ export default {
     color: rgb(255, 255, 255);
     background-color: rgba(0, 0, 0, 0.11);
     border: solid rgb(105, 105, 105) 4px;
+    border-bottom: none;
     text-decoration: none;
     text-shadow: 0 0 10px #1201ff; 
     font-size: large;
     font-weight: bolder; 
     overflow: scroll;
+    box-sizing: border-box;
     cursor: pointer;
 }
 .headers > h3 {
@@ -253,7 +254,7 @@ export default {
     color: rgb(255, 255, 255);
     background-color: rgb(0, 0, 0);
     text-decoration: none;
-    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
+    text-shadow: 0px 0px 10px #3ee8ff;
     font-size: large;
     font-weight: bolder; 
     cursor: pointer;

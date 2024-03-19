@@ -43,7 +43,7 @@ export default {
     color: rgb(255, 255, 255);
     background-color: rgb(0, 0, 0);
     text-decoration: none;
-    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
+    text-shadow: 0px 0px 10px #3ee8ff;
     font-size: large;
     font-weight: bolder; 
     cursor: pointer;

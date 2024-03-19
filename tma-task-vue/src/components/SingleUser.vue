@@ -1,31 +1,18 @@
 <template>
     <div class="singleWordContainer" :class="{selected: selected}">
-        <div class="singleWord"> <h3>{{ item.ItemID }} </h3>  </div>
-        <div class="singleWord"> <h3> {{item.ItemGroup}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.UnitOfMeasurement}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.Quantity}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.PriceWithoutVAT}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.Status}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.StorageLocation}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.ContactPerson}}</h3>  </div>
-        <div class="singleWord"> <img :src="'data:image/png;base64,'+item.Photo" alt="test"> </div>
-        <div class="singleWord"> <button @click="orderItem()"> order </button>  </div>
+        <div class="singleWord"> <h3> {{ item.id }} </h3>  </div>
+        <div class="singleWord"> <h3> {{ item.username }}</h3>  </div>
+        <div class="singleWord"> <h3> {{ item.role }}</h3></div>
     </div>  
 </template>
 
 <script>
-import ItemResponse from '@/Data/ItemResponse';
 
 export default {
     props:{
         selected : Boolean,
-        item: ItemResponse
+        item:Object,
     },
-    methods: {
-        orderItem() {
-            this.$emit('orderEmit',this.item);
-        }
-    }
 };
 </script>
 
@@ -42,7 +29,7 @@ export default {
 }
 .singleWord {
     display: flex;
-    width: calc(100% / 10); 
+    width: calc(100% / 3); 
     align-items: start;
     justify-content: center;
     height: 100%;

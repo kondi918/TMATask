@@ -8,7 +8,7 @@
                 <div class="otherNavDiv"> 
                     <router-link to="/warehouse">Item List</router-link>
                     <router-link to="/requests" v-if="myUser.OPPermission">Request List</router-link>
-                    <router-link to="/about" v-if="myUser.ADMPermission">Admin Panel</router-link>
+                    <router-link to="/admin" v-if="myUser.ADMPermission">Admin Panel</router-link>
                 </div>
                 <div class="userInfoDiv">
                     Logged User: <br>

@@ -2,15 +2,16 @@
 using TMAWarehouseAPI.Data;
 using TMAWarehouseAPI.Exceptions;
 using TMAWarehouseAPI.Models;
+using TMAWarehouseAPI.Models.DTO;
 
 namespace TMAWarehouseAPI.Services
 {
-    public class LoginService
+    public class UsersService
     {
         private readonly DatabaseContext _dbContext;
         
 
-        public LoginService(DatabaseContext dbContext)
+        public UsersService(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -81,6 +82,30 @@ namespace TMAWarehouseAPI.Services
             catch(Exception ex)
             {
                 return false;
+            }
+        }
+
+        public async Task<List<UserAdminDTO>> GetAllUsers()
+        {
+            try
+            {
+                List<UserAdminDTO> userResponse = new List<UserAdminDTO>();
+                var users = await _dbContext.Users.ToListAsync();
+                foreach (var user in users)
+                {
+                    UserAdminDTO userAdmin = new UserAdminDTO
+                    {
+                        Username = user.Username,
+                        ID = user.ID,
+                        Role = user.Role
+                    };
+                    userResponse.Add(userAdmin);
+                }
+                return userResponse;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occured while trying to get users");
             }
         }
     }

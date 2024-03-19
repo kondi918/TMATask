@@ -216,7 +216,7 @@ button:hover {
     background-color: rgba(0, 0, 0, 0.11);
     border: solid rgb(105, 105, 105) 4px;
     text-decoration: none;
-    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
+    text-shadow: 0px 0px 10px #3ee8ff;
     font-size: large;
     font-weight: bolder; 
     cursor: pointer;
