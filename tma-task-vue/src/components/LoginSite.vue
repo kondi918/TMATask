@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     RedirectToWarehouse() {
-      console.log("dziala");
       this.$router.push({ name:'warehouse'});
     },
     GetAlertString() {

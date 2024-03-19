@@ -7,7 +7,7 @@
                 </div>
                 <div class="otherNavDiv"> 
                     <router-link to="/warehouse">Item List</router-link>
-                    <router-link to="/about" v-if="myUser.OPPermission">Request List</router-link>
+                    <router-link to="/requests" v-if="myUser.OPPermission">Request List</router-link>
                     <router-link to="/about" v-if="myUser.ADMPermission">Admin Panel</router-link>
                 </div>
                 <div class="userInfoDiv">
@@ -17,7 +17,7 @@
                 </div>
         </div>
         <div class="bodyDiv">
-           
+           <RequestList> </RequestList>
         </div>
     </div>
     <div class="backgroundBlack"> </div>
@@ -25,10 +25,12 @@
   </template>
   <script>
 import User from '@/Data/User';
+import RequestList from '@/components/RequestList.vue';
 
 export default {
   props: ['user'],
   components: {
+    RequestList,
   },
   data() {
     return {

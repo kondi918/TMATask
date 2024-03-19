@@ -1,6 +1,6 @@
 ﻿namespace TMAWarehouseAPI.Models.DTO
 {
-    public class TMARowRequestDTO
+    public class OrderRequestDTO
     {
         public int ItemID { get; set; }
         public string Name { get; set; }

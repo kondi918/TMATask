@@ -1,47 +1,35 @@
 <template>
     <div class="container">
         <div class="searchInput">
-           <input type="text" placeholder="search by name" @input="sortByName(value)" v-model="sortByNameText">
-           <input type="text" placeholder="search by location" @input="sortByLocation()" v-model="sortByLocationText">
-           <div class="headerButtonDiv"><button @click="clearRequestEmit"> Clear Order Request </button> </div>
+           <input type="text" placeholder="search by id" @input="sortByName(value)" v-model="sortByNameText">
+           <input type="text" placeholder="search by employee" @input="sortByLocation()" v-model="sortByLocationText">
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
-            <button @click="sortBy('ItemGroup')">Item Group</button>
-            <button @click="sortBy('UnitOfMeasurement')">Unit Of Measurement</button>
-            <button @click="sortBy('Quantity')">Quantity</button>
-            <button @click="sortBy('PriceWithoutVAT')">Price Without VAT</button>
+            <button @click="sortBy('EmployeeName')">Employee Name</button>
+            <button> Comment </button>
             <button @click="sortBy('Status')">Status</button>
-            <button @click="sortBy('StorageLocation')">Storage Location</button>
-            <button @click="sortBy('ContactPerson')">Contact Person</button>
-            <button> Photo </button>
-            <h3> Order </h3>
         </div>
-        <div class="itemsDiv">
-        <WarehouseSingleItem v-for="(item,index) in items" 
-        :key="index"
-        :item="item"
-        :selected="index===selectedIndex" 
-        @click="selectItem(index)" @orderEmit="orderRequest"/>
+        <div class="itemsDiv" v-if="isListShowing"> 
+            <SingleRequest v-for="(item,index) in items" 
+            :key="index"
+            :item="item"
+            :selected="index===selectedIndex" 
+            @click="selectItem(index)"/>
         </div>
-        <div class="buttonsDiv" v-if="myUser.OPPermission">
-            <button @click="addItem()"> Add </button>
-            <button @click="updateItem"> Update </button>
-            <button @click="removeItem()"> Remove </button>
+        <div class="itemsDiv" v-if="!isListShowing"> 
+            <RequestDetails> </RequestDetails>
         </div>
     </div>
 </template>
 
 <script>
-import ItemResponse from '@/Data/ItemResponse';
-import WarehouseSingleItem from './WarehouseSingleItem.vue';
+import TMARequest from '@/Data/TMARequest';
 import axios from 'axios';
-import User from '@/Data/User';
+import SingleRequest from './SingleRequest.vue';
+import RequestDetails from './RequestDetails.vue';
 
 export default {
-    props: {
-        myUser:User
-    },
     data() {
         return {
             selectedIndex: null,
@@ -50,11 +38,13 @@ export default {
             direction : 1,
             originalItemsArray : [],
             sortByNameText : '',
-            sortByLocationText: ''
+            sortByLocationText: '',
+            isListShowing: true
         }
     },
     components: {
-        WarehouseSingleItem
+        SingleRequest,
+        RequestDetails,
     },
     methods: {
         selectItem(index) {
@@ -70,26 +60,11 @@ export default {
                     case 'ID':
                         this.items.sort((a, b) => (a.ItemID - b.ItemID) * this.direction);
                         break;
-                    case 'ItemGroup':
+                    case 'EmployeeName':
                         this.items.sort((a, b) => ((a.ItemGroup || '').localeCompare(b.ItemGroup || '')) * this.direction);
                         break;
-                    case 'UnitOfMeasurement':
-                        this.items.sort((a, b) => ((a.UnitOfMeasurement || '').localeCompare(b.UnitOfMeasurement || '')) * this.direction);
-                        break;
-                    case 'Quantity':
-                        this.items.sort((a, b) => ((a.Quantity || 0) - (b.Quantity || 0)) * this.direction);
-                        break;
-                    case 'PriceWithoutVAT':
-                        this.items.sort((a, b) => ((a.PriceWithoutVAT || 0) - (b.PriceWithoutVAT || 0)) * this.direction);
-                        break;
                     case 'Status':
-                        this.items.sort((a, b) => ((a.Status || '').localeCompare(b.Status || '')) * this.direction);
-                        break;
-                    case 'StorageLocation':
-                        this.items.sort((a, b) => ((a.StorageLocation || '').localeCompare(b.StorageLocation || ''))*this.direction);
-                        break;
-                    case 'ContactPerson':
-                        this.items.sort((a, b) => ((a.ContactPerson || '').localeCompare(b.ContactPerson || '')) * this.direction);
+                        this.items.sort((a, b) => ((a.UnitOfMeasurement || '').localeCompare(b.UnitOfMeasurement || '')) * this.direction);
                         break;
                     default:
                         this.items.sort((a, b) => a.ItemID - b.ItemID);
@@ -123,13 +98,9 @@ export default {
             });
            this.items = newTable;      
         },
-
-        addItem() {
-            this.$emit('addObject');
-        },
         async getItemList() {
             try {
-                const response = await axios.get('http://localhost:5171/Item/GetItems');
+                const response = await axios.get('http://localhost:5171/TMARequest/GetRequests');
                 if (response.data) {
                     return response.data;
                 } else {
@@ -144,19 +115,15 @@ export default {
                 }
             }
         },
-        mapToItemResponse(response) {
+        mapToRequestResponse(response) {
             const items = []
             response.forEach(itemData => {
-                const item = new ItemResponse(
-                itemData.itemID,
-                itemData.itemGroup,
-                itemData.unitOfMeasurement,
-                itemData.quantity,
-                itemData.priceWithoutVAT,
+                const item = new TMARequest(
+                itemData.requestID,
+                itemData.employeeName,
+                itemData.comment,
                 itemData.status,
-                itemData.storageLocation,
-                itemData.contactPerson,
-                itemData.photo
+
             );
             items.push(item);
             });
@@ -190,17 +157,13 @@ export default {
             }
             this.$emit('updateItemRequest',this.originalItemsArray[this.selectedIndex]);
         },
-        orderRequest(item) {
-            this.$emit('orderRequest', item)
-        },
-        clearRequestEmit() {
-            this.$emit('clearRequest')
-        },
     },
     created() {
         this.getItemList().then(response => {
-            this.items = this.mapToItemResponse(response);
+            console.log(response);
+            this.items = this.mapToRequestResponse(response);
             this.originalItemsArray = this.items;
+            console.log(this.items);
             }).catch(error => {
                 console.error("Error", error);
             });
@@ -224,7 +187,7 @@ export default {
     border-bottom: none;
 }
 .headers > button {
-    width: calc(100% / 10); 
+    width: calc(100% / 4); 
     height: 100%;
     color: rgb(255, 255, 255);
     background-color: rgba(0, 0, 0, 0.11);
@@ -236,12 +199,7 @@ export default {
     overflow: scroll;
     cursor: pointer;
 }
-.headers > h3 {
-    width: calc(100% / 10); 
-    height: 100%;
-    color: rgb(255, 255, 255);
-    background-color: rgba(0, 0, 0, 0.11);
-}
+
 .headers > button::-webkit-scrollbar {
     display: none;
 }
@@ -249,15 +207,6 @@ export default {
     display: flex;
     justify-content: end;
     width: 90%;
-}
-.headerButtonDiv > button {
-    color: rgb(255, 255, 255);
-    background-color: rgb(0, 0, 0);
-    text-decoration: none;
-    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
-    font-size: large;
-    font-weight: bolder; 
-    cursor: pointer;
 }
 .searchInput {
     display: flex;

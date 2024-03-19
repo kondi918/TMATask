@@ -22,7 +22,7 @@ namespace TMAWarehouseAPI.Services
             };
             return model;
         }
-        public async Task<bool> AddOrderRequest(List<TMARowRequestDTO> requestBody)
+        public async Task<bool> AddOrderRequest(List<OrderRequestDTO> requestBody)
         {
             try
             {
@@ -61,6 +61,27 @@ namespace TMAWarehouseAPI.Services
             {
                 throw new Exception(ex.Message);
             }
+        }
+        private TMARequestDTO MapToTMARequestDTO(TMARequest element)
+        {
+            TMARequestDTO responseElement = new TMARequestDTO
+            {
+                RequestID = element.RequestID,
+                EmployeeName = element.EmployeeName,
+                Comment = element.Comment,
+                Status = element.Status,
+            };
+            return responseElement;
+        }
+        public async Task<List<TMARequestDTO>> GetAllRequests(){
+            var databaseList = await _dbContext.TMARequests.ToListAsync();
+            List<TMARequestDTO> responseList = new List<TMARequestDTO>();
+            foreach(var element in databaseList)
+            {
+                responseList.Add(MapToTMARequestDTO(element));
+            }
+            return responseList;
+
         }
     }
 }

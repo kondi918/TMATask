@@ -56,7 +56,6 @@ export default {
   },
   created() {
     this.myUser = JSON.parse(localStorage.getItem('user'));
-    console.log(this.myUser)
     if(this.myUser == null || this.myUser.role == null) {
         this.$router.push({ name: 'login'});
     }
