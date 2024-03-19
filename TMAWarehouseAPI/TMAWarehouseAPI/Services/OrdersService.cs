@@ -12,16 +12,7 @@ namespace TMAWarehouseAPI.Services
         {
             _dbContext = _context;
         }
-        private TMARequest GetTMARequest(string employeeName, string comment, string status )
-        {
-            TMARequest model = new TMARequest
-            {
-                EmployeeName = employeeName,
-                Comment = comment,
-                Status = status
-            };
-            return model;
-        }
+
         public async Task<bool> AddOrderRequest(List<OrderRequestDTO> requestBody)
         {
             try
@@ -82,6 +73,81 @@ namespace TMAWarehouseAPI.Services
             }
             return responseList;
 
+        }
+        private async Task<List<TMARequestRowsResponseDTO>> SetTMARowsResponse(List<TMARequestRows> requestRows)
+        {
+            List<TMARequestRowsResponseDTO> response = new List<TMARequestRowsResponseDTO>();
+            foreach(var row in requestRows)
+            {
+                TMARequestRowsResponseDTO singleResponse = new TMARequestRowsResponseDTO();
+                singleResponse.itemID = row.ItemID;
+                singleResponse.UnitOfMeasurement = row.UnitOfMeasurement;
+                singleResponse.PriceWithoutVAT = row.PriceWithoutVAT;
+                singleResponse.Quantity = row.Quantity;
+                singleResponse.itemName = await _dbContext.Items.Where(item => item.ItemID == row.ItemID).Select(item => item.ItemGroup).FirstOrDefaultAsync();
+                response.Add(singleResponse);
+            }
+            return response;
+        }
+        public async Task<List<TMARequestRowsResponseDTO>> GetRequestRows(int requestID){
+            try
+            {
+                var requestRows = await _dbContext.TMARequestRows.Where(item => item.RequestID == requestID).ToListAsync();
+                var response = await SetTMARowsResponse(requestRows);
+                return response;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error occured while trying to get request rows");
+            }
+        }
+        public async Task<bool> RejectRequest(RejectRequestDTO requestBody)
+        {
+            try
+            {
+                var requestFromDB = await _dbContext.TMARequests.Where(item => item.RequestID == requestBody.RequestID).FirstOrDefaultAsync();
+                if (requestFromDB == null)
+                {
+                    return false;
+                }
+                requestFromDB.Status = requestBody.Status;
+                requestFromDB.Comment = requestBody.Comment;
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error occured while trying to update request");
+            }
+        }
+
+        public async Task<bool> ConfirmRequest(int requestID)
+        {
+            try
+            {
+                var requestRows = await _dbContext.TMARequestRows.Where(item => item.RequestID == requestID).ToListAsync();
+                if(requestRows.Count <= 0)
+                {
+                    return false;
+                }
+                foreach(var requestRow in requestRows)
+                {
+                    var singleItem = await _dbContext.Items.Where(item => item.ItemID == requestRow.ItemID).FirstOrDefaultAsync();
+                    singleItem.Quantity -= requestRow.Quantity;
+                }
+                var request = await _dbContext.TMARequests.Where(item => item.RequestID == requestID).FirstOrDefaultAsync();
+                if(request == null)
+                {
+                    return false;
+                }
+                request.Status = "done";
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error occured while trying to update request");
+            }
         }
     }
 }

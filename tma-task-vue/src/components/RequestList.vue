@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div class="searchInput">
-           <input type="text" placeholder="search by id" @input="sortByName(value)" v-model="sortByNameText">
-           <input type="text" placeholder="search by employee" @input="sortByLocation()" v-model="sortByLocationText">
+           <input type="text" placeholder="search by id" @input="sortByNumber" v-model="sortByNumberText">
+           <input type="text" placeholder="search by employee" @input="sortByName()" v-model="sortByNameText">
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
@@ -10,15 +10,11 @@
             <button> Comment </button>
             <button @click="sortBy('Status')">Status</button>
         </div>
-        <div class="itemsDiv" v-if="isListShowing"> 
+        <div class="itemsDiv"> 
             <SingleRequest v-for="(item,index) in items" 
             :key="index"
             :item="item"
-            :selected="index===selectedIndex" 
             @click="selectItem(index)"/>
-        </div>
-        <div class="itemsDiv" v-if="!isListShowing"> 
-            <RequestDetails> </RequestDetails>
         </div>
     </div>
 </template>
@@ -27,28 +23,26 @@
 import TMARequest from '@/Data/TMARequest';
 import axios from 'axios';
 import SingleRequest from './SingleRequest.vue';
-import RequestDetails from './RequestDetails.vue';
 
 export default {
     data() {
         return {
-            selectedIndex: null,
             items : [],
             previousColumn : 'ID',
             direction : 1,
             originalItemsArray : [],
             sortByNameText : '',
-            sortByLocationText: '',
-            isListShowing: true
+            sortByNumberText: '',
         }
     },
     components: {
         SingleRequest,
-        RequestDetails,
     },
     methods: {
         selectItem(index) {
-            this.selectedIndex = index;
+            if(this.items[index].Status != 'done') {
+            this.$emit('goToDetails',this.items[index].RequestID);
+            }
         },
         sortBy(column) {
             if(this.previousColumn == column) {
@@ -58,19 +52,32 @@ export default {
             if(this.items != null && this.items.length > 1) {
                 switch (column) {
                     case 'ID':
-                        this.items.sort((a, b) => (a.ItemID - b.ItemID) * this.direction);
+                        this.items.sort((a, b) => (a.RequestID - b.RequestID) * this.direction);
                         break;
                     case 'EmployeeName':
-                        this.items.sort((a, b) => ((a.ItemGroup || '').localeCompare(b.ItemGroup || '')) * this.direction);
+                        this.items.sort((a, b) => ((a.EmployeeName || '').localeCompare(b.EmployeeName || '')) * this.direction);
                         break;
                     case 'Status':
-                        this.items.sort((a, b) => ((a.UnitOfMeasurement || '').localeCompare(b.UnitOfMeasurement || '')) * this.direction);
+                        this.items.sort((a, b) => ((a.Status || '').localeCompare(b.Status || '')) * this.direction);
                         break;
                     default:
                         this.items.sort((a, b) => a.ItemID - b.ItemID);
                         break;
                     }
                 }
+        },
+        sortByNumber() {
+            if(this.sortByNumberText == '') {
+                this.items = this.originalItemsArray;
+                return;
+            }
+            let newTable = [];
+            this.originalItemsArray.forEach(element => {
+                if(element.RequestID.toString().startsWith(this.sortByNumberText)) {
+                    newTable.push(element);
+                }
+            });
+           this.items = newTable;      
         },
         sortByName() {
             if(this.sortByNameText == '') {
@@ -79,20 +86,7 @@ export default {
             }
             let newTable = [];
             this.originalItemsArray.forEach(element => {
-                if(element.ItemGroup.toUpperCase().startsWith(this.sortByNameText.toUpperCase())) {
-                    newTable.push(element);
-                }
-            });
-           this.items = newTable;      
-        },
-        sortByLocation() {
-            if(this.sortByLocationText == '') {
-                this.items = this.originalItemsArray;
-                return;
-            }
-            let newTable = [];
-            this.originalItemsArray.forEach(element => {
-                if(element.StorageLocation.toUpperCase().startsWith(this.sortByLocationText.toUpperCase())) {
+                if(element.EmployeeName.toUpperCase().startsWith(this.sortByNameText.toUpperCase())) {
                     newTable.push(element);
                 }
             });
@@ -129,41 +123,11 @@ export default {
             });
             return items;
         },
-        async removeItem() {
-            if(this.selectedIndex == null) {
-                alert("You have to select item");
-                return;
-            }
-            const id = Number(this.originalItemsArray[Number(this.selectedIndex)].ItemID);
-            axios.post('http://localhost:5171/Item/DeleteItem',id,{headers: {
-                'Content-Type': 'application/json'
-                }
-            }).then(response =>{
-                if(response.status == 200) {
-                    alert("succesfully deleted item from database");
-                    this.originalItemsArray.splice(this.selectedIndex,1);
-                    this.items = this.originalItemsArray;
-                    console.log(this.items);
-                }
-            }).catch(error =>{
-                alert("Error: ",error);
-            })
-            
-        },
-        updateItem() {
-            if(this.selectedIndex == null) {
-                alert("You have to select item");
-                return;
-            }
-            this.$emit('updateItemRequest',this.originalItemsArray[this.selectedIndex]);
-        },
     },
     created() {
         this.getItemList().then(response => {
-            console.log(response);
             this.items = this.mapToRequestResponse(response);
             this.originalItemsArray = this.items;
-            console.log(this.items);
             }).catch(error => {
                 console.error("Error", error);
             });

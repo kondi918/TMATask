@@ -16,9 +16,12 @@
                     {{ myUser.role }}
                 </div>
         </div>
-        <div class="bodyDiv">
-           <RequestList> </RequestList>
+        <div class="bodyDiv" v-if="isListShowing">
+           <RequestList @goToDetails="handleDetailsShowing"> </RequestList>
         </div>
+        <div class="bodyDiv" v-if="!isListShowing">
+            <RequestDetails @goBack="handleGoBack" :rows="requestRows" :requestID="requestID"> </RequestDetails>
+         </div>
     </div>
     <div class="backgroundBlack"> </div>
 </div>
@@ -26,15 +29,22 @@
   <script>
 import User from '@/Data/User';
 import RequestList from '@/components/RequestList.vue';
+import RequestDetails from '@/components/RequestDetails.vue';
+import axios from 'axios'
+import RequestRowsResponse from '@/Data/RequestRowsResponse';
 
 export default {
   props: ['user'],
   components: {
     RequestList,
+    RequestDetails
   },
   data() {
     return {
         myUser: User,
+        isListShowing: true,
+        requestRows : Array,
+        requestID : Number
     }
   },
   created() {
@@ -44,6 +54,43 @@ export default {
     }
   },
   methods: {
+    async handleDetailsShowing(objectID) {
+        this.requestID = objectID;
+        this.requestRows = await this.getRequestRows(objectID)
+        this.isListShowing = false;
+    },
+    handleGoBack() {
+        this.isListShowing = true;
+    },
+    mapToRequestRowsResponse(response) {
+            const items = []
+            response.forEach(itemData => {
+                const item = new RequestRowsResponse(
+                itemData.itemID,
+                itemData.itemName,
+                itemData.priceWithoutVAT,
+                itemData.quantity,
+                itemData.unitOfMeasurement
+            );
+            items.push(item);
+            });
+            return items;
+        },
+    async getRequestRows(objectID){
+        try {
+        const response = await axios.get(`http://localhost:5171/TMARequest/GetRequestRows?itemID=${objectID}`);
+        if (response.data) {
+            return this.mapToRequestRowsResponse(response.data);
+        } else {
+            alert("Empty response");
+            return []; 
+        }
+    } catch (error) {
+        console.log(error);
+        alert('Error:', error);
+        return []; 
+    }
+    }
   }
 }
 </script>

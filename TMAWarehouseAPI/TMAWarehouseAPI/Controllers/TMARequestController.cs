@@ -65,6 +65,79 @@ namespace TMAWarehouseAPI.Controllers
                 return StatusCode(500, "error while trying to execute getting all requests");
             }
         }
+        [HttpGet("GetRequestRows", Name = "GetRequestRows")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<TMARequestRowsResponseDTO>>> GetRequestRowsList(int itemID)
+        {
+            try
+            {
+                OrdersService ordersService = new OrdersService(_dbContext);
+                var response = await ordersService.GetRequestRows(itemID);
+                if (response.Count > 0)
+                {
+                    return Ok(response);
+                }
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("RejectRequest", Name = "RejectRequest")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<bool>> RejectingRequest([FromBody] RejectRequestDTO requestBody)
+        {
+            try
+            {
+                OrdersService ordersService = new OrdersService(_dbContext);
+                var response = await ordersService.RejectRequest(requestBody);
+                if(response)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("ConfirmRequest", Name = "ConfirmRequest")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<bool>> ConfirmingRequest([FromBody] int requestID)
+        {
+            try
+            {
+                OrdersService ordersService = new OrdersService(_dbContext);
+                var response = await ordersService.ConfirmRequest(requestID);
+                if (response)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
     }
 }

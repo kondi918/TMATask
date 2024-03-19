@@ -36,11 +36,10 @@
 import ItemResponse from '@/Data/ItemResponse';
 import WarehouseSingleItem from './WarehouseSingleItem.vue';
 import axios from 'axios';
-import User from '@/Data/User';
 
 export default {
     props: {
-        myUser:User
+        myUser : Object
     },
     data() {
         return {
@@ -179,7 +178,7 @@ export default {
                     console.log(this.items);
                 }
             }).catch(error =>{
-                alert("Error: ",error);
+                alert("Error: " + error.response.data);
             })
             
         },
@@ -202,7 +201,7 @@ export default {
             this.items = this.mapToItemResponse(response);
             this.originalItemsArray = this.items;
             }).catch(error => {
-                console.error("Error", error);
+                console.error("Error: " + error.response.data);
             });
         }
     }

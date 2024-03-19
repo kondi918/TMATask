@@ -34,10 +34,8 @@ import WarehouseItemList from '@/components/WarehouseItemList.vue';
 import AddingItemPanel from '@/components/AddingItemPanel.vue';
 import OrderPanel from '@/components/OrderPanel.vue';
 import axios from 'axios';
-import User from '@/Data/User';
 
 export default {
-  props: ['user'],
   components: {
     WarehouseItemList,
     AddingItemPanel,
@@ -45,7 +43,7 @@ export default {
   },
   data() {
     return {
-        myUser: User,
+        myUser: Object,
         showAddingPanel: false,
         showOrderPanel: false,
         whatPanel: 'adding',
@@ -99,7 +97,7 @@ export default {
             .then(response => {
                 if(response)
                 {
-                    console.log(response);
+                    console.log(response.data);
                     alert("Request created");
                     this.orderRequestList = [];
                 }

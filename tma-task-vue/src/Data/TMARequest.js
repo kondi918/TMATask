@@ -1,4 +1,4 @@
-class ItemRequest {
+class TMARequest {
     constructor(RequestID, EmployeeName, Comment, Status) {
         this.RequestID = RequestID;
         this.EmployeeName = EmployeeName;
@@ -7,4 +7,4 @@ class ItemRequest {
     }
 }
 
-export default ItemRequest;
+export default TMARequest;

@@ -142,7 +142,7 @@ export default {
                 }
             })
             .catch(error => {
-                alert('Error:', error);
+                alert('Error:' + error.response.data);
             });
         },
         setObject() {

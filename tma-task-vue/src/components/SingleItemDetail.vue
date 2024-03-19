@@ -1,32 +1,19 @@
 <template>
-    <div class="singleWordContainer" :class="isConfirmed ? 'selected' : (isRejected ? 'rejected' : '')">
-        <div class="singleWord"> <h3>{{ item.RequestID }} </h3>  </div>
-        <div class="singleWord"> <h3> {{item.EmployeeName}}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.Comment }}</h3>  </div>
-        <div class="singleWord"> <h3> {{item.Status}}</h3>  </div>
+    <div class="singleWordContainer">
+        <div class="singleWord"> <h3> {{ item.itemName }} </h3>  </div>
+        <div class="singleWord"> <h3> {{ item.quantity }} </h3>  </div>
+        <div class="singleWord"> <h3> {{ item.unitOfMeasurement }} </h3>  </div>
+        <div class="singleWord"> <h3> {{ item.priceWithoutVAT }} </h3>  </div>
     </div>  
 </template>
 
 <script>
 
+
 export default {
     props:{
-        selected : Boolean,
         item: Object
     },
-    data() {
-    return {
-        isRejected : false,
-        isConfirmed : false
-    }},
-    created() {
-        if(this.item.Status=='rejected') {
-            this.isRejected = true;
-        }
-        if(this.item.Status == 'done') {
-            this.isConfirmed = true;
-        }
-    }
 };
 </script>
 
@@ -89,8 +76,5 @@ h3 {
 }
 .selected {
     background-color: rgb(11, 87, 27);
-}
-.rejected {
-    background-color: rgb(119, 7, 7);
 }
 </style>
