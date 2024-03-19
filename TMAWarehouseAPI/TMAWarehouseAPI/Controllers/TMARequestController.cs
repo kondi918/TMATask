@@ -29,20 +29,20 @@ namespace TMAWarehouseAPI.Controllers
                 if (requestRows.Count > 0)
                 {
                     var  result = await ordersService.AddOrderRequest(requestRows);
-                    if(result.Count > 0)
+                    if(result)
                     {
-                        return Ok(result);
+                        return Ok();
                     }
                     else
                     {
-                        return NotFound();
+                        return BadRequest();
                     }
                 }
-                return StatusCode(StatusCodes.Status204NoContent);
+                return NoContent();
             }
             catch(Exception ex)
             {
-                return StatusCode(StatusCodes.Status404NotFound);
+                return StatusCode(500,ex.Message);
             }
         }
 

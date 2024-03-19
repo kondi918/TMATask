@@ -1,5 +1,5 @@
 <template>    
-<div class="loginSite" v-if="myUser">
+<div class="loginSite" v-if="myUser && myUser.OPPermission">
     <div class="container">
         <div class="headerDiv">
                 <div class="homeNavDiv">
@@ -7,7 +7,7 @@
                 </div>
                 <div class="otherNavDiv"> 
                     <router-link to="/warehouse">Item List</router-link>
-                    <router-link to="/requests" v-if="myUser.OPPermission">Request List</router-link>
+                    <router-link to="/about" v-if="myUser.OPPermission">Request List</router-link>
                     <router-link to="/about" v-if="myUser.ADMPermission">Admin Panel</router-link>
                 </div>
                 <div class="userInfoDiv">
@@ -16,103 +16,32 @@
                     {{ myUser.role }}
                 </div>
         </div>
-        <div class="bodyDiv" v-if="!showAddingPanel && !showOrderPanel">
-            <WarehouseItemList @addObject="handleAddingObject" @updateItemRequest="handleUpdateRequest" @orderRequest="handleOrderRequest" @clearRequest="handleClearRequest()" :myUser="myUser"></WarehouseItemList>
-        </div>
-        <div class="bodyDiv" v-if="showAddingPanel">
-            <AddingItemPanel @returnToList="handleReturnToList" :whatPanel="whatPanel" :givenItem="givenItem"> </AddingItemPanel>
-        </div>
-        <div class="bodyDiv" v-if="showOrderPanel">
-            <OrderPanel @returnToList="handleReturnToList"  @addToOrderList="handleAddingOrderToRequest" @requestSubmit="handleRequestSubmit" :givenItem="givenOrder" :employerName="myUser.username"> </OrderPanel>
+        <div class="bodyDiv">
+           
         </div>
     </div>
     <div class="backgroundBlack"> </div>
 </div>
   </template>
   <script>
-import WarehouseItemList from '@/components/WarehouseItemList.vue';
-import AddingItemPanel from '@/components/AddingItemPanel.vue';
-import OrderPanel from '@/components/OrderPanel.vue';
-import axios from 'axios';
 import User from '@/Data/User';
 
 export default {
   props: ['user'],
   components: {
-    WarehouseItemList,
-    AddingItemPanel,
-    OrderPanel
   },
   data() {
     return {
         myUser: User,
-        showAddingPanel: false,
-        showOrderPanel: false,
-        whatPanel: 'adding',
-        givenItem: Object,
-        givenOrder: Object,
-        orderRequestList: []
     }
   },
   created() {
     this.myUser = JSON.parse(localStorage.getItem('user'));
-    console.log(this.myUser)
     if(this.myUser == null || this.myUser.role == null) {
         this.$router.push({ name: 'login'});
     }
   },
   methods: {
-    handleAddingObject() {
-        this.showAddingPanel = true;
-        this.whatPanel = 'adding';
-    },
-    handleReturnToList() {
-        this.showAddingPanel = false;
-        this.showOrderPanel = false;
-    },
-    handleUpdateRequest(item) {
-        this.givenItem = item
-        this.whatPanel = 'updating'
-        this.showAddingPanel = true;
-    },
-    handleOrderRequest(givenItem) {
-        this.givenOrder = givenItem;
-        this.showOrderPanel = true;
-    },
-    handleAddingOrderToRequest(item) {
-        this.showOrderPanel = false;
-        this.orderRequestList.push(item)
-        alert("Request updated");
-    },
-    handleRequestSubmit(item) {
-        this.showOrderPanel = false;
-        this.orderRequestList.push(item)
-        this.sendOrdersRequest();
-    },
-    handleClearRequest() {
-        this.orderRequestList = [];
-        alert("Request cleared");
-    },
-    async sendOrdersRequest() {
-            axios.post('http://localhost:5171/TMARequest/PostOrderRequest',this.orderRequestList,{headers:{
-                'Content-Type': 'application/json'}
-                })
-            .then(response => {
-                if(response)
-                {
-                    console.log(response);
-                    alert("Request created");
-                    this.orderRequestList = [];
-                }
-                else{
-                    alert("Creating request failed. Try again");
-                }
-            })
-            .catch(error => {
-                console.log(error);
-                alert('Error:', error);
-            });
-        },
   }
 }
 </script>

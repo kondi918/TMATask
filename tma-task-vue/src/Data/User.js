@@ -1,21 +1,18 @@
 class User {
-    constructor(username, role) {
+  constructor(username, role) {
       this.username = username;
       this.role = role;
-    }
-    
-    hasOPPermission() {
-      if(this.role == "OP" || this.role == "ADM") {
-        return true;
-      }
-      return false;
-    }
-    hasADMPermission() {
-        if(this.role == "ADM") {
-            return true;
-        }
-        return false;
-    }
+      this.OPPermission = this.hasOPPermission(); // Przypisanie wyniku metody hasOPPermission() do właściwości OPPermission
+      this.ADMPermission = this.hasADMPermission(); // Przypisanie wyniku metody hasADMPermission() do właściwości ADMPermission
   }
   
-  export default User;
+  hasOPPermission() {
+      return this.role === "CO" || this.role === "ADM"; // Zwraca true, jeśli role to "CO" lub "ADM", w przeciwnym razie false
+  }
+  
+  hasADMPermission() {
+      return this.role === "ADM"; // Zwraca true, jeśli role to "ADM", w przeciwnym razie false
+  }
+}
+
+export default User;

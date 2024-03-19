@@ -3,7 +3,7 @@
         <div class="searchInput">
            <input type="text" placeholder="search by name" @input="sortByName(value)" v-model="sortByNameText">
            <input type="text" placeholder="search by location" @input="sortByLocation()" v-model="sortByLocationText">
-           <div class="headerButtonDiv"><button @click="clearRequestEmit"> Clear </button> </div>
+           <div class="headerButtonDiv"><button @click="clearRequestEmit"> Clear Order Request </button> </div>
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
@@ -24,7 +24,7 @@
         :selected="index===selectedIndex" 
         @click="selectItem(index)" @orderEmit="orderRequest"/>
         </div>
-        <div class="buttonsDiv">
+        <div class="buttonsDiv" v-if="myUser.OPPermission">
             <button @click="addItem()"> Add </button>
             <button @click="updateItem"> Update </button>
             <button @click="removeItem()"> Remove </button>
@@ -36,8 +36,12 @@
 import ItemResponse from '@/Data/ItemResponse';
 import WarehouseSingleItem from './WarehouseSingleItem.vue';
 import axios from 'axios';
+import User from '@/Data/User';
 
 export default {
+    props: {
+        myUser:User
+    },
     data() {
         return {
             selectedIndex: null,

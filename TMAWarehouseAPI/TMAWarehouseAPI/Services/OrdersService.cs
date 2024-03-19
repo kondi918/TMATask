@@ -12,9 +12,9 @@ namespace TMAWarehouseAPI.Services
         {
             _dbContext = _context;
         }
-        private TMARequestModel GetTMARequest(string employeeName, string comment, string status )
+        private TMARequest GetTMARequest(string employeeName, string comment, string status )
         {
-            TMARequestModel model = new TMARequestModel
+            TMARequest model = new TMARequest
             {
                 EmployeeName = employeeName,
                 Comment = comment,
@@ -22,16 +22,40 @@ namespace TMAWarehouseAPI.Services
             };
             return model;
         }
-        public async Task<List<int>> AddOrderRequest(List<TMARowRequestDTO> requestBody)
+        public async Task<bool> AddOrderRequest(List<TMARowRequestDTO> requestBody)
         {
-            List<int> testList = new List<int>();
             try
             {
+                var tmaRequest = new TMARequest
+                {
+                    EmployeeName = requestBody.FirstOrDefault()?.EmployeeName,
+                    Comment = "",
+                    Status = "New",
+                };
+
+                _dbContext.TMARequests.Add(tmaRequest);
+
+                await _dbContext.SaveChangesAsync();
+
+
                 foreach (var element in requestBody)
                 {
-                    testList.Add(element.ItemID);
+                    var tmaRowRequest = new TMARequestRows
+                    {
+                        RequestID = tmaRequest.RequestID,
+                        ItemID = element.ItemID,
+                        Quantity = element.Quantity,
+                        UnitOfMeasurement = element.UnitOfMeasurement,
+                        PriceWithoutVAT = element.PriceWithoutVAT,
+                    };
+
+                    _dbContext.TMARequestRows.Add(tmaRowRequest);
                 }
-                return testList;
+
+                await _dbContext.SaveChangesAsync();
+
+                return true;
+
             }
             catch(Exception ex)
             {
