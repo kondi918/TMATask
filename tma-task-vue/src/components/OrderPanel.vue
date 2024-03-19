@@ -4,45 +4,36 @@
     <div class="formContainer">
         <form id="addItemForm" @submit.prevent="handleSubmit">
             <label for="itemGroup">Item Group:</label><br>
-            <select id="itemGroup" name="itemGroup" required v-model="itemGroup" @change="updateUnits()">
-            <option value="" selected disabled hidden>Select Group</option>
-            <optgroup label="ItemName">
-                <option v-for="item in namesOptions" :key="item" :value="item">{{ item}}</option>
-            </optgroup>
+            <select id="itemGroup" name="itemGroup" required v-model="itemGroup">
+                <option :value="givenItem.ItemGroup">{{ givenItem.ItemGroup }}</option>
             </select>
-            <label for="unitOfMeasurements" v-if="itemSelected">unitOfMeasurements:</label><br>
-            <select id="unitOfMeasurements" name="unitOfMeasurements" required v-model="unitOfMeasurement" v-if="itemSelected" @change="updateQuantity()">
-            <option value="" selected disabled hidden>Select Unit</option>
-            <optgroup label="Unit">
-                <option v-for="item in unitOfMeasurementOptions" :key="item" :value="item">{{ item}}</option>
-            </optgroup>
+            <label for="unitOfMeasurements">unitOfMeasurements:</label><br>
+            <select id="unitOfMeasurements" name="unitOfMeasurements" required v-model="unitOfMeasurement">
+                <option :value="givenItem.UnitOfMeasurement">{{ givenItem.UnitOfMeasurement }}</option>
             </select>
-            <label for="quantity" v-if="unitSelected">Quantity:</label>
-            <input type="number" id="quantity" name="quantity" required v-model="quantity" v-if="unitSelected">
-            <label for="priceWithoutVAT" v-if="unitSelected">Price Without VAT:</label>
-            <input type="number" step="0.01" id="priceWithoutVAT" name="priceWithoutVAT" required v-model="priceWithoutVat" v-if="unitSelected">
-            <label for="comment" v-if="unitSelected">Comment:</label>
-            <textarea id="comment" name="comment" v-model="comment" v-if="unitSelected"></textarea>
-            <button type="submit" id="submit">Add Item</button>
-            <button type="submit" id="addToList">Update Item</button>
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" required v-model="quantity">
+            <label for="priceWithoutVAT">Price Without VAT:</label>
+            <input type="number" step="0.01" id="priceWithoutVAT" name="priceWithoutVAT" required v-model="priceWithoutVat">
+            <label for="comment">Comment:</label>
+            <textarea id="comment" name="comment" v-model="comment"></textarea>
+            <button type="submit" id="submit">Submit</button>
+            <button type="submit" id="addToList">Add to Request</button>
             <button @click="cancelAdding"> Cancel </button>
         </form>
     </div>
 </div>
 </template>
 <script>
-import axios from 'axios';
+import OrderRequest from '@/Data/OrderRequest'
 
 export default {
     props: {
-        givenItems : Array,
+        givenItem : Array,
+        employerName : String,
     },
     data() {
         return {
-        unitOfMeasurementOptions: [],
-        namesOptions: [],
-        itemSelected : false,
-        unitSelected : false,
         itemGroup: '',
         unitOfMeasurement: '',
         quantity: 0,
@@ -51,74 +42,42 @@ export default {
         };
     },
     methods: {
+        resetForm() {
+        this.itemGroup = '';
+        this.unitOfMeasurement = '';
+        this.quantity = 0;
+        this.priceWithoutVat = '';
+        this.comment = '';
+        this.itemSelected = false;
+        this.unitSelected = false;
+        },
         cancelAdding() {
             this.$emit("returnToList");
         },
-        async handleSubmit(event) {
+        submitRequest(order) {
+            this.$emit("requestSubmit",order);
+        },
+        addSingleOrderToList(order) {
+            this.$emit("addToOrderList",order)
+        },
+        getSingleOrder() {
+            return new OrderRequest(this.givenItem.ItemID, this.itemGroup,this.unitOfMeasurement,this.quantity,this.priceWithoutVat,this.comment, this.employerName)
+        },
+        handleSubmit(event) {
         event.preventDefault();
         if(event.submitter.id == "submit") {
-            console.log("SUBMIT")
-
+            this.submitRequest(this.getSingleOrder());
         }
         else if(event.submitter.id=="addToList") {
-            console.log("ADDTOLIST")
-
+            this.addSingleOrderToList(this.getSingleOrder());
         }
         },
-        async sendAddRequest(requestBody) {
-            axios.post('http://localhost:5171/Item/PostItem',requestBody)
-            .then(response => {
-                if(response)
-                {
-                    alert("Succesfully added to database");
-                    this.cancelAdding();
-                }
-                else{
-                    alert("Adding item failed");
-                }
-            })
-            .catch(error => {
-                alert('Error:', error);
-            });
-        },
-        setGroupNames() {
-            const names = []
-            this.givenItems.forEach(item => {
-                if(!names.includes(item.ItemGroup)) {
-                    names.push(item.ItemGroup);
-                }
-            })
-            return names;
-        },
-        setUnitOptions() {
-            const units = []
-            this.givenItems.forEach(item => {
-                if(item.ItemGroup == this.itemGroup) {
-                    if(!units.includes(item.UnitOfMeasurement)){
-                        units.push(item.UnitOfMeasurement)
-                    }
-                }
-            })
-            return units;
-        },
-        updateUnits() {
-            this.itemSelected = true;
-            this.unitSelected = false;
-            this.unitOfMeasurementOptions = this.setUnitOptions();
-
-        },
-        updateQuantity() {
-          const foundItem = this.givenItems.find(item => {
-            return item.ItemGroup == this.itemGroup && item.UnitOfMeasurement == this.unitOfMeasurement
-          })
-          if(foundItem) {
-            this.quantity = foundItem.Quantity;
-          }
-          this.unitSelected = true;
-        }
         },
     created() {
-        this.namesOptions = this.setGroupNames();
+        this.itemGroup = this.givenItem.ItemGroup;
+        this.unitOfMeasurement = this.givenItem.UnitOfMeasurement;
+        this.quantity = this.givenItem.Quantity;
+        this.priceWithoutVat = this.givenItem.PriceWithoutVAT;
     }
 }
 </script>

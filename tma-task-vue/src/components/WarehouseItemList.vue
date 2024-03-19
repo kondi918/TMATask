@@ -3,7 +3,7 @@
         <div class="searchInput">
            <input type="text" placeholder="search by name" @input="sortByName(value)" v-model="sortByNameText">
            <input type="text" placeholder="search by location" @input="sortByLocation()" v-model="sortByLocationText">
-           <div class="headerButtonDiv"><button @click="orderRequest"> Order </button> </div>
+           <div class="headerButtonDiv"><button @click="clearRequestEmit"> Clear </button> </div>
         </div>
         <div class="headers">
             <button @click="sortBy('ID')">ID </button>
@@ -15,13 +15,14 @@
             <button @click="sortBy('StorageLocation')">Storage Location</button>
             <button @click="sortBy('ContactPerson')">Contact Person</button>
             <button> Photo </button>
+            <h3> Order </h3>
         </div>
         <div class="itemsDiv">
         <WarehouseSingleItem v-for="(item,index) in items" 
         :key="index"
         :item="item"
         :selected="index===selectedIndex" 
-        @click="selectItem(index)"/>
+        @click="selectItem(index)" @orderEmit="orderRequest"/>
         </div>
         <div class="buttonsDiv">
             <button @click="addItem()"> Add </button>
@@ -202,10 +203,12 @@ export default {
             });
             return itemArray
         },
-        orderRequest() {
-            var itemTypeList = this.prepareItemNames()
-            this.$emit('orderRequest', itemTypeList)
-        }
+        orderRequest(item) {
+            this.$emit('orderRequest', item)
+        },
+        clearRequestEmit() {
+            this.$emit('clearRequest')
+        },
     },
     created() {
         this.getItemList().then(response => {
@@ -234,7 +237,7 @@ export default {
     border-bottom: none;
 }
 .headers > button {
-    width: calc(100% / 9); 
+    width: calc(100% / 10); 
     height: 100%;
     color: rgb(255, 255, 255);
     background-color: rgba(0, 0, 0, 0.11);
@@ -245,6 +248,12 @@ export default {
     font-weight: bolder; 
     overflow: scroll;
     cursor: pointer;
+}
+.headers > h3 {
+    width: calc(100% / 10); 
+    height: 100%;
+    color: rgb(255, 255, 255);
+    background-color: rgba(0, 0, 0, 0.11);
 }
 .headers > button::-webkit-scrollbar {
     display: none;

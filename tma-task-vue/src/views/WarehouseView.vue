@@ -17,13 +17,13 @@
                 </div>
         </div>
         <div class="bodyDiv" v-if="!showAddingPanel && !showOrderPanel">
-            <WarehouseItemList @addObject="handleAddingObject" @updateItemRequest="handleUpdateRequest" @orderRequest="handleOrderRequest"></WarehouseItemList>
+            <WarehouseItemList @addObject="handleAddingObject" @updateItemRequest="handleUpdateRequest" @orderRequest="handleOrderRequest" @clearRequest="handleClearRequest()"></WarehouseItemList>
         </div>
         <div class="bodyDiv" v-if="showAddingPanel">
             <AddingItemPanel @returnToList="handleReturnToList" :whatPanel="whatPanel" :givenItem="givenItem"> </AddingItemPanel>
         </div>
         <div class="bodyDiv" v-if="showOrderPanel">
-            <OrderPanel @returnToList="handleReturnToList" :givenItems="givenItems"> </OrderPanel>
+            <OrderPanel @returnToList="handleReturnToList"  @addToOrderList="handleAddingOrderToRequest" @requestSubmit="handleRequestSubmit" :givenItem="givenOrder" :employerName="myUser.username"> </OrderPanel>
         </div>
     </div>
     <div class="backgroundBlack"> </div>
@@ -34,6 +34,7 @@ import User from '@/Data/User';
 import WarehouseItemList from '@/components/WarehouseItemList.vue';
 import AddingItemPanel from '@/components/AddingItemPanel.vue';
 import OrderPanel from '@/components/OrderPanel.vue';
+import axios from 'axios';
 
 export default {
   props: ['user'],
@@ -49,7 +50,8 @@ export default {
         showOrderPanel: false,
         whatPanel: 'adding',
         givenItem: Object,
-        givenItems: Object
+        givenOrder: Object,
+        orderRequestList: []
     }
   },
   created() {
@@ -72,10 +74,44 @@ export default {
         this.whatPanel = 'updating'
         this.showAddingPanel = true;
     },
-    handleOrderRequest(givenItems) {
-        this.givenItems = givenItems
+    handleOrderRequest(givenItem) {
+        this.givenOrder = givenItem;
         this.showOrderPanel = true;
-    }
+    },
+    handleAddingOrderToRequest(item) {
+        this.showOrderPanel = false;
+        this.orderRequestList.push(item)
+        alert("Request updated");
+    },
+    handleRequestSubmit(item) {
+        this.showOrderPanel = false;
+        this.orderRequestList.push(item)
+        this.sendOrdersRequest();
+    },
+    handleClearRequest() {
+        this.orderRequestList = [];
+        alert("Request cleared");
+    },
+    async sendOrdersRequest() {
+            axios.post('http://localhost:5171/TMARequest/PostOrderRequest',this.orderRequestList,{headers:{
+                'Content-Type': 'application/json'}
+                })
+            .then(response => {
+                if(response)
+                {
+                    console.log(response);
+                    alert("Request created");
+                    this.orderRequestList = [];
+                }
+                else{
+                    alert("Creating request failed. Try again");
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                alert('Error:', error);
+            });
+        },
   }
 }
 </script>

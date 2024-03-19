@@ -9,6 +9,7 @@
         <div class="singleWord"> <h3> {{item.StorageLocation}}</h3>  </div>
         <div class="singleWord"> <h3> {{item.ContactPerson}}</h3>  </div>
         <div class="singleWord"> <img :src="'data:image/png;base64,'+item.Photo" alt="test"> </div>
+        <div class="singleWord"> <button @click="orderItem()"> order </button>  </div>
     </div>  
 </template>
 
@@ -20,6 +21,11 @@ export default {
         selected : Boolean,
         item: ItemResponse
     },
+    methods: {
+        orderItem() {
+            this.$emit('orderEmit',this.item);
+        }
+    }
 };
 </script>
 
@@ -36,7 +42,7 @@ export default {
 }
 .singleWord {
     display: flex;
-    width: calc(100% / 9); 
+    width: calc(100% / 10); 
     align-items: start;
     justify-content: center;
     height: 100%;
@@ -44,6 +50,20 @@ export default {
     border: solid rgb(105, 105, 105) 4px;
     border-top:none;
     overflow: auto;
+}
+.singleWord > button {
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+    text-decoration: none;
+    text-shadow: 0px 0px 10px #3ee8ff; /* Dodanie efektu cienia */
+    font-size: large;
+    font-weight: bolder; 
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+}
+.singleWord > button:hover {
+    background-color: rgb(156, 156, 156);
 }
 .singleWord::-webkit-scrollbar {
     display: none;
