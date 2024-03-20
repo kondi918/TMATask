@@ -9,13 +9,21 @@ namespace TMAWarehouseAPI.Services
     public class UsersService
     {
         private readonly DatabaseContext _dbContext;
-        
+
 
         public UsersService(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
 
+        private bool CheckRole(string role)
+        {
+            if (role == "ADM" || role == "EMP" || role=="CO")
+            {
+                return true;
+            }
+            return false;
+        }
         public async Task<User> GetUser(string login, string password)
         {
             User user;
@@ -65,8 +73,18 @@ namespace TMAWarehouseAPI.Services
             }
             return users;
         }
+        private User GetUser(AddingUserDTO userToAdd)
+        {
+            User user = new User
+            {
+                Username = userToAdd.Username,
+                Password = BCrypt.Net.BCrypt.HashPassword(userToAdd.Password),
+                Role = userToAdd.Role
+            };
+            return user;
+        }
 
-        public async Task<bool> AddUsers()
+        public async Task<bool> AddDefaultUsers()
         {
             try
             {
@@ -108,5 +126,69 @@ namespace TMAWarehouseAPI.Services
                 throw new Exception("Error occured while trying to get users");
             }
         }
+
+        public async Task<bool> AddUser(AddingUserDTO userToAdd)
+        {
+            if (!CheckRole(userToAdd.Role))
+            {
+                throw new Exception("User role is not correct");
+            }
+            try
+            {
+                User user = GetUser(userToAdd);
+                await _dbContext.AddAsync(user);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error occured durning adding user to database");
+            }
+        }
+        public async Task<bool> UpdateUser(UpdatingUserDTO userToUpdate)
+        {
+            if (!CheckRole(userToUpdate.Role))
+            {
+                throw new Exception("User role is not correct");
+            }
+            try
+            {
+                User user = await _dbContext.Users.Where(item => item.ID == userToUpdate.Id).FirstOrDefaultAsync();
+                if(user == null)
+                {
+                    return false;
+                }
+                user.Username = userToUpdate.Username;
+                user.Role = userToUpdate.Role;
+                user.Password = BCrypt.Net.BCrypt.HashPassword(userToUpdate.Password);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occured durning updating user to database");
+            }
+        }
+
+        public async Task<bool> RemoveUser(int id)
+        {
+            try
+            {
+                var user = await _dbContext.Users.Where(item =>item.ID == id).FirstOrDefaultAsync();
+                if(user == null) 
+                {
+                    return false;
+                }
+                _dbContext.Users.Remove(user);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error occured durning removing user from database");
+
+            }
+        }
+
     }
 }

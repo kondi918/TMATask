@@ -13,9 +13,9 @@
         @click="selectItem(index)"/>
         </div>
         <div class="buttonsDiv">
-            <button @click="addItem()"> Add </button>
-            <button @click="updateItem"> Update </button>
-            <button @click="removeItem()"> Remove </button>
+            <button @click="addUser()"> Add </button>
+            <button @click="updateUser"> Update </button>
+            <button @click="removeUser()"> Remove </button>
         </div>
     </div>
 </template>
@@ -58,38 +58,41 @@ export default {
                 }
             }
         },
-        async removeItem() {
+        async removeUser() {
             if(this.selectedIndex == null) {
                 alert("You have to select item");
                 return;
             }
-            const id = Number(this.originalItemsArray[Number(this.selectedIndex)].ItemID);
-            axios.post('http://localhost:5171/Item/DeleteItem',id,{headers: {
+            console.log(this.items);
+            const id = this.items[this.selectedIndex].id
+            axios.post('http://localhost:5171/User/RemoveUser',id,{headers: {
                 'Content-Type': 'application/json'
                 }
             }).then(response =>{
                 if(response.status == 200) {
                     alert("succesfully deleted item from database");
-                    this.originalItemsArray.splice(this.selectedIndex,1);
-                    this.items = this.originalItemsArray;
-                    console.log(this.items);
+                    this.items.splice(this.selectedIndex,1);
                 }
             }).catch(error =>{
                 alert("Error: " + error.response.data);
             })
             
         },
-        updateItem() {
+        updateUser() {
             if(this.selectedIndex == null) {
-                alert("You have to select item");
+                alert("You have to select user");
                 return;
             }
-            this.$emit('updateItemRequest',this.originalItemsArray[this.selectedIndex]);
+            this.$emit('updateUser',this.items[this.selectedIndex].id);
         },
+        addUser() {
+            this.$emit('addUser');
+        }
     },
     created() {
         this.getItemList().then(response => {
             this.items = response;
+            console.log(this.items);
             }).catch(error => {
                 console.error("Error: " + error.response.data);
             });

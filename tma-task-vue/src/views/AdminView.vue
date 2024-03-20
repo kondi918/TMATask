@@ -17,23 +17,31 @@
                 </div>
         </div>
         <div class="bodyDiv">
-            <AdminUsersList :myUser="myUser"></AdminUsersList>
+            <AdminUsersList :myUser="myUser" @addUser="handleAdding" @updateUser="handleUpdate" v-if="!isAddingPanel"></AdminUsersList>
+        </div>
+        <div class="bodyDiv" v-if="isAddingPanel">
+            <AddingUser @returnToList="handleReturn" :whatPanel="whatPanel" :givenItem="givenItem"> </AddingUser>
         </div>
     </div>
     <div class="backgroundBlack"> </div>
 </div>
   </template>
   <script>
+import AddingUser from '@/components/AddingUser.vue';
 import AdminUsersList from '@/components/AdminUsersList.vue';
 import User from '@/Data/User';
 
 export default {
   components: {
-    AdminUsersList
+    AdminUsersList,
+    AddingUser
   },
   data() {
     return {
         myUser: User,
+        isAddingPanel : false,
+        whatPanel : 'adding',
+        givenItem : Number
     }
   },
   created() {
@@ -42,6 +50,22 @@ export default {
         this.$router.push({ name: 'login'});
     }
   },
+  methods: {
+    handleReturn() {
+        this.isAddingPanel = false;
+    },
+    handleUpdate(id) {
+        this.isAddingPanel = true;
+        this.givenItem = id;
+        this.whatPanel = 'updating';
+
+    },
+    handleAdding() {
+        this.isAddingPanel = true;
+        this.whatPanel = 'adding';
+
+    }
+  }
 }
 </script>
 

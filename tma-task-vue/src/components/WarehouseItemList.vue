@@ -201,7 +201,7 @@ export default {
             this.items = this.mapToItemResponse(response);
             this.originalItemsArray = this.items;
             }).catch(error => {
-                console.error("Error: " + error.response.data);
+                console.error("Error: " + error);
             });
         }
     }

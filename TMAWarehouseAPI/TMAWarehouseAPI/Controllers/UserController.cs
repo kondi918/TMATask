@@ -30,7 +30,7 @@ namespace TMAWarehouseAPI.Controllers
             UsersService loginService = new UsersService(_databaseContext);
             if (userDTO.Username == "inituserstmawarehouse" && userDTO.Password == "initusershashedpasswords")
             {
-                if (await loginService.AddUsers())
+                if (await loginService.AddDefaultUsers())
                 {
                     return CreatedAtAction(nameof(GetUser), userDTO);
                 }
@@ -66,6 +66,73 @@ namespace TMAWarehouseAPI.Controllers
                 if (response.Count > 0)
                 {
                     return Ok(response);
+                }
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpPost("AddUser", Name = "AddUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<User>> AddUser([FromBody] AddingUserDTO userDTO)
+        {
+            try
+            {
+                UsersService usersService = new UsersService(_databaseContext);
+                var result = await usersService.AddUser(userDTO);
+                if(result)
+                {
+                    return Ok(result);
+                }
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpPost("UpdateUser", Name = "UpdateUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<User>> UpdateUser([FromBody] UpdatingUserDTO userDTO)
+        {
+            try
+            {
+                UsersService usersService = new UsersService(_databaseContext);
+                var result = await usersService.UpdateUser(userDTO);
+                if (result)
+                {
+                    return Ok(result);
+                }
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("RemoveUser", Name = "RemoveUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<User>> RemoveUser([FromBody] int id)
+        {
+            try
+            {
+                UsersService usersService = new UsersService(_databaseContext);
+                var result = await usersService.RemoveUser(id);
+                if (result)
+                {
+                    return Ok(result);
                 }
                 return NotFound();
             }
