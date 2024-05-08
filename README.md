@@ -8,6 +8,7 @@ To use that method at login panel you should give following details:
 login: inituserstmawarehouse
 password: initusershashedpasswords
 That will create 3 users:
+
 1)
 Username: employee
 Password: emp123
